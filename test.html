@@ -25,15 +25,25 @@
         };
 
         if (!('serviceWorker' in navigator)) {
-            log("Browser does not support Service Worker, are you using Chrome Canary?  Is the Service Worker flag switched on? chrome://flags/#enable-service-worker");
+            log("Browser does not support Service Worker, are you using Chrome Canary? Is the Service Worker flag switched on? chrome://flags/#enable-service-worker");
         }
         else {
             log("Browser supports Service Worker");
 
-            window.addEventListener('message', function() {
-                console.log('arguments', arguments);
-                debugger;
+            console.log('EXIST ? navigator.serviceWorker', navigator.serviceWorker);
+
+            window.addEventListener('message', function(event) {
+                console.log('message', event);
+                //debugger;
             });
+
+            setTimeout(function() { // Wait 5s and send message
+
+                var event = new Event('message', {message: 'Test message'});
+                window.dispatchEvent(event);
+                console.log('Event message triggered');
+
+            }, 5000);
 
             if (navigator.serviceWorker.current) {
                 log("Current Service Worker state: \\o/");
@@ -55,7 +65,7 @@
                         console.log('myWorker', myWorker);
 
                         log('Successfully installed ServiceWorker');
-                        log('Go to chrome://serviceworker-internals/ to see Service Worker debug output');
+                        log('Go to chrome://serviceworker-internals/ or chrome://inspect/#service-workers');
 
                         myWorker.addEventListener('statechange', function(event) {
                             console.log('event', event);
