@@ -41,9 +41,9 @@
         
         log('About to try to install a Service Worker');
         
-        navigator.serviceWorker.register('https://molokoloco.github.io/tests/javascripts/worker.js', {
+        navigator.serviceWorker.register('./javascripts/worker.js'/*, { // https://molokoloco.github.io/tests/javascripts/worker.js
             scope: '/tests/'
-          })
+          }*/)
           .then(function(serviceWorker) {
             log('Successfully installed ServiceWorker');
             log('Go to chrome://serviceworker-internals/ to see Service Worker debug output');
