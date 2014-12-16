@@ -1,94 +1,89 @@
 <!DOCTYPE html>
 <html>
-  <head>
-  </head>
-  <body>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Testing Services Workers</title>
+</head>
+
+<body>
+
+    <div style="max-width: 700px; margin: 0 auto 0 auto;">
+        <button id="swinstall">Install Service Worker</button>
+        <button id="swuninstall">Uninstall Service Worker</button>
+        <div id="js-log" style="height: 400px; overflow: scroll; color: white; background: black; font-family: monospace; line-height: 150%; font-size: 12px; padding: 7px;"></div>
+        <a href="http://mattandre.ws">mattandre.ws</a> <a href="http://twitter.com/andrewsmatt">@andrewsmatt</a>
+    </div>
   
-  <div style="max-width: 700px; margin: 0 auto 0 auto;">
-    <button id="swinstall">Install Service Worker</button>
-    <button id="swuninstall">Uninstall Service Worker</button>
-    <div id="js-log" style="height: 400px; overflow: scroll; color: white; background: black; font-family: monospace; line-height: 150%; font-size: 12px; padding: 7px;"></div> 
-    <a href="http://mattandre.ws">mattandre.ws</a> <a href="http://twitter.com/andrewsmatt">@andrewsmatt</a>
-  </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script>
 
-  <script>
+        var log = function() {
+            var el = document.createElement('div');
+            el.innerHTML = Array.prototype.join.call(arguments, '<br />');
+            $('#js-log').appendChild(el);
+        };
 
-    window.addEventListener('message', function() {
-      console.log('arguments', arguments);
-      debugger;
-    });
+        if (!('serviceWorker' in navigator)) {
+            log("Browser does not support Service Worker, are you using Chrome Canary?  Is the Service Worker flag switched on? chrome://flags/#enable-service-worker");
+        }
+        else {
+            log("Browser supports Service Worker");
 
-    function log() {
-      var el = document.createElement('div');
-      el.innerHTML = Array.prototype.join.call(arguments, '<br />');
-      document.getElementById('js-log').appendChild(el);
-    }
-
-    if (!('serviceWorker' in navigator)) {
-      log("Browser does not support Service Worker, are you using Chrome Canary?  Is the Service Worker flag switched on? chrome://flags/#enable-service-worker");
-    }
-    else {
-      log("Browser supports Service Worker");
-
-      if (navigator.serviceWorker.current) {
-        log("Current Service Worker state: \\o/");
-        log('Go to chrome://serviceworker-internals/ to see Service Worker debug output');
-      } else {
-        log("No Service Worker active...");
-      }
-
-      document.getElementById('swinstall').addEventListener('click', function() {
-        
-        log('About to try to install a Service Worker');
-        
-        // TEST 1
-
-        navigator.serviceWorker
-          .register('https://molokoloco.github.io/tests/javascripts/worker.js', {scope: '/tests/'}) // https://molokoloco.github.io/tests/javascripts/worker.js
-          .then(function(serviceWorker) {
-            console.log('serviceWorker', serviceWorker);
-
-            log('Successfully installed ServiceWorker');
-            log('Go to chrome://serviceworker-internals/ to see Service Worker debug output');
-            
-            serviceWorker.addEventListener('statechange', function(event) {
-              console.log('event', event);
-              log("Worker state is now ", event.target.state);
+            window.addEventListener('message', function() {
+                console.log('arguments', arguments);
+                debugger;
             });
 
-          }, function(why) {
-            console.log(arguments)
-            log(arguments);
-          });
+            if (navigator.serviceWorker.current) {
+                log("Current Service Worker state: \\o/");
+                log('Go to chrome://serviceworker-internals/ to see Service Worker debug output');
+            } else {
+                log("No Service Worker active...");
+            }
 
-        // TEST 2
+            $('#swinstall').addEventListener('click', function() {
 
-        navigator.serviceWorker
-          .register('https://molokoloco.github.io/tests/worker.js', {scope: 'https://molokoloco.github.io/tests/'})
-          .then(function(registration) {
-            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-          })
-          .catch(function(err) {
-            console.log('ServiceWorker registration failed: ', err);
-          });
+                log('About to try to install a Service Worker');
 
+                navigator.serviceWorker
+                    .register('https://molokoloco.github.io/tests/worker.js', {
+                        scope: 'https://molokoloco.github.io/tests/'
+                    })
+                    .then(function(myWorker) {
 
-      });
+                        console.log('myWorker', myWorker);
 
-      document.getElementById('swuninstall').addEventListener('click', function() {
-        log('About to try to uninstall a Service Worker');
-        
-        navigator.serviceWorker.unregister()
-          .then(function() {
-            log('Successfully uninstalled ServiceWorker');
-          }, function(why) {
-            console.log(arguments)
-            log('Failed to uninstall '+why);
-          });
+                        log('Successfully installed ServiceWorker');
+                        log('Go to chrome://serviceworker-internals/ to see Service Worker debug output');
 
-      });
+                        myWorker.addEventListener('statechange', function(event) {
+                            console.log('event', event);
+                            log("Worker state is now ", event.target.state);
+                        });
 
-    }
-  </script>
-  </body>
+                    }, function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                        log('ServiceWorker registration failed: ', err);
+                    });
+
+            });
+
+            $('#swuninstall').addEventListener('click', function() {
+                log('About to try to uninstall a Service Worker');
+
+                navigator.serviceWorker
+                    .unregister()
+                    .then(function() {
+                        log('Successfully uninstalled ServiceWorker');
+                    }, function(why) {
+                        console.log(why)
+                        log('Failed to uninstall ' + why);
+                    });
+
+            });
+
+        }
+    </script>
+</body>
 </html>
