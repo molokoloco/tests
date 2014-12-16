@@ -19,8 +19,6 @@
     });
 
     function log() {
-      console.log.call(console, arguments)
-
       var el = document.createElement('div');
       el.innerHTML = Array.prototype.join.call(arguments, '<br />');
       document.getElementById('js-log').appendChild(el);
@@ -43,7 +41,7 @@
         
         log('About to try to install a Service Worker');
         
-        navigator.serviceWorker.register('http://molokoloco.github.io/tests/js/worker.js', {
+        navigator.serviceWorker.register('https://molokoloco.github.io/tests/javascripts/worker.js', {
             scope: '/tests/'
           })
           .then(function(serviceWorker) {
@@ -53,6 +51,7 @@
               log("Worker state is now ", event.target.state);
             });
           }, function(why) {
+            console.log(arguments)
             log(arguments);
           });
 
@@ -65,7 +64,8 @@
           .then(function() {
             log('Successfully uninstalled ServiceWorker');
           }, function(why) {
-            log('Failed to uninstall', why);
+            console.log(arguments)
+            log('Failed to uninstall '+why);
           });
 
       });
