@@ -19,9 +19,9 @@
     <script>
 
         var log = function() {
-            var el = document.createElement('div');
-            el.innerHTML = Array.prototype.join.call(arguments, '<br />');
-            $('#js-log').appendChild(el);
+            var $el = $('<div/>');
+            $el.html(Array.prototype.join.call(arguments, '<br />'));
+            $('#js-log').append($el);
         };
 
         if (!('serviceWorker' in navigator)) {
@@ -42,7 +42,7 @@
                 log("No Service Worker active...");
             }
 
-            $('#swinstall').addEventListener('click', function() {
+            $('#swinstall').on('click', function() {
 
                 log('About to try to install a Service Worker');
 
@@ -69,7 +69,7 @@
 
             });
 
-            $('#swuninstall').addEventListener('click', function() {
+            $('#swuninstall').on('click', function() {
                 log('About to try to uninstall a Service Worker');
 
                 navigator.serviceWorker
