@@ -41,18 +41,31 @@
         
         log('About to try to install a Service Worker');
         
-        navigator.serviceWorker.register('./javascripts/worker.js'/*, { // https://molokoloco.github.io/tests/javascripts/worker.js
-            scope: '/tests/'
-          }*/)
+        navigator.serviceWorker
+          .register('/tests/javascripts/worker.js', {  scope: '/'}) // https://molokoloco.github.io/tests/javascripts/worker.js
           .then(function(serviceWorker) {
             log('Successfully installed ServiceWorker');
             log('Go to chrome://serviceworker-internals/ to see Service Worker debug output');
+            
             serviceWorker.addEventListener('statechange', function(event) {
+              console.log('event', event);
               log("Worker state is now ", event.target.state);
             });
+
           }, function(why) {
             console.log(arguments)
             log(arguments);
+          });
+
+
+        navigator.serviceWorker
+          .register('/sw.js')
+          .then(function(registration) {
+            // Registration was successful
+            console.log('ServiceWorker registration successful with scope: ',    registration.scope);
+          }).catch(function(err) {
+            // registration failed :(
+            console.log('ServiceWorker registration failed: ', err);
           });
 
       });
