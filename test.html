@@ -82,6 +82,8 @@
             $('#swuninstall').on('click', function() {
                 log('About to try to uninstall a Service Worker');
 
+                if (!navigator.serviceWorker.current) return;
+
                 navigator.serviceWorker
                     .unregister()
                     .then(function() {
