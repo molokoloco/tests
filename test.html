@@ -64,7 +64,7 @@
         // TEST 2
 
         navigator.serviceWorker
-          .register('worker.js')
+          .register('https://molokoloco.github.io/tests/worker.js', {scope: 'https://molokoloco.github.io/tests/'})
           .then(function(registration) {
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
           })
