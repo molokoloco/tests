@@ -27,7 +27,8 @@ this.addEventListener('activate', function(event) {
 this.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en/tutorials/service-worker/introduction/
     console.log('fetch', event);
 
-    event.respondWith(new Response("Hello everyone!"));
+    //event.respondWith(new Response("Hello everyone!"));
+    
     /*
     console.log("Fetching", event.request.url);
     console.log("Headers", new Set(event.request.headers));
