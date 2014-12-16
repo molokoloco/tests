@@ -42,7 +42,7 @@
         log('About to try to install a Service Worker');
         
         navigator.serviceWorker
-          .register('/tests/javascripts/worker.js', {  scope: '/'}) // https://molokoloco.github.io/tests/javascripts/worker.js
+          .register('https://molokoloco.github.io/tests/javascripts/worker.js', {scope: '/tests/'}) // https://molokoloco.github.io/tests/javascripts/worker.js
           .then(function(serviceWorker) {
             console.log('serviceWorker', serviceWorker);
 
@@ -57,7 +57,6 @@
           }, function(why) {
             console.log(arguments)
             log(arguments);
-
 
             navigator.serviceWorker
               .register('./javascripts/worker.js')

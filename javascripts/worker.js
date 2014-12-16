@@ -1,3 +1,4 @@
+
 console.log("I am a Service Worker");
 
 this.addEventListener('install', function(e) {
