@@ -32,7 +32,6 @@
 
         window.addEventListener('message', function(event) {
             console.log('message', event);
-            notifyMe();
             //debugger;
         });
 
@@ -45,26 +44,10 @@
             };
         }
 
-        var notifyMe = function() {
-            if (!Notification) {
-                log('Notification : Please us a modern version of Chrome, Firefox, Opera or Firefox.');
-                return;
-            }
-
-            if (Notification.permission !== 'granted') Notification.requestPermission();
-
-            var notification = new Notification('Notification title', {
-                icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
-                body: 'Hey there! You\'ve been notified from PAGE!',
-            });
-
-            //notification.onclick = function () { }
-        };
-
-        setTimeout(function() { // Wait 5s and send message
-            window.dispatchEvent(new Event('message', {testing: 'Test message'}));
-            console.log('Event message triggered');
-        }, 5000);
+        // setTimeout(function() { // Wait 5s and send message
+        //     window.dispatchEvent(new Event('message', {testing: 'Test message'}));
+        //     console.log('Event message triggered');
+        // }, 5000);
 
 
 
@@ -77,13 +60,15 @@
 
         console.log('navigator.serviceWorker', navigator.serviceWorker, navigator.serviceWorker.state);
 
-        if ((navigator.serviceWorker.controller && navigator.serviceWorker.controller.state == 'activated') || navigator.serviceWorker.ready) {
-            log('Current Service Worker state: \\o/');
+        if (navigator.serviceWorker.controller && navigator.serviceWorker.controller.state == 'activated') {
+            log('Current Service Worker state: '+navigator.serviceWorker.controller.state);
             log('Go to chrome://serviceworker-internals/ or chrome://inspect/#service-workers');
         }
         else {
             log('No Service Worker active...');
         }
+
+        if (Notification && Notification.permission !== 'granted') Notification.requestPermission();
 
         $('#swinstall').on('click', function() {
 
@@ -91,6 +76,15 @@
 
             navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
                 console.log('navigator.serviceWorker.ready', serviceWorkerRegistration); // .pushManager
+
+                serviceWorkerRegistration.addEventListener('statechange', function(event) {
+                        console.log('event statechange()', event);
+                    });
+
+                serviceWorkerRegistration.addEventListener('message', function(event) {
+                        console.log('event message()', event);
+                        log('Worker state is now ', event.target.state);
+                });
             });
 
             navigator.serviceWorker
