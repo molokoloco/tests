@@ -1,13 +1,13 @@
 
 console.log("SW startup");
-/*console.log("Request", self.Request);
-console.log("Response", self.Response);
-console.log("fetch", self.fetch);
-console.log("Cache", self.Cache);
-console.log("caches", self.caches);
-console.log("getAll", self.getAll);*/
-
 /*
+    console.log("Request", self.Request);
+    console.log("Response", self.Response);
+    console.log("fetch", self.fetch);
+    console.log("Cache", self.Cache);
+    console.log("caches", self.caches);
+    console.log("getAll", self.getAll);
+
     navigator: WorkerNavigator
     onactivate: null
     onerror: null
@@ -21,6 +21,7 @@ console.log("getAll", self.getAll);*/
     onpush: null
     onsync: null
 */
+
 var notifyMe = function() {
     if (!Notification) {
         console.log('Notification : Please us a modern version of Chrome, Firefox, Opera or Firefox.');
@@ -31,7 +32,7 @@ var notifyMe = function() {
 
     var notification = new Notification('Notification title', {
         icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
-        body: "Hey there! You've been notified!",
+        body: "Hey there! You've been notified from Web Worker!",
     });
 
     // notification.onclick = function () {
@@ -42,7 +43,6 @@ var notifyMe = function() {
 self.addEventListener('install', function(event) {
     console.log('install', event);
     //debugger;
-    
 });
 
 self.addEventListener('activate', function(event) {
@@ -97,5 +97,6 @@ self.onmessage = function(event) {
 };
 
 setInterval(function() {
+    console.log('setInterval notif');
     notifyMe();
-}, 10000);
+}, 20 * 1000);
