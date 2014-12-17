@@ -15,14 +15,14 @@ var notifInt = null,
     count = 0;
 
 var notifyNow = function(mess) {
-    count++
+    count++;
     notifInt = null;
     var notification = new Notification('Offres promos !', {
         icon: 'http://img.clubic.com/05575691-photo-logo-bouygues-telecom.jpg',
         body: mess ? mess : 'Bonjour ! Nouvelles offres sur Bouyguestelecom.fr !!! ('+count+')',
     });
     // notification.onclick = function () {}
-    if (count < 2) notifInt = setTimeout(notifyNow, 20 * 1000, 'Later..');
+    if (count < 2) notifInt = setTimeout(notifyNow, 20 * 1000, 'Later after..');
 };
 
 var notifyMe = function(mess) {
@@ -90,8 +90,6 @@ self.onmessage = function(event) {
     if (event.data.port) event.data.port.postMessage('Woopa from worker!');
 };
 
-setTimeout(function() {
-    notifyMe('Worker Roots');
-}, 20 * 1000);
-
 // --------------------------------------------------------- //
+
+notifyMe('Worker Roots');
