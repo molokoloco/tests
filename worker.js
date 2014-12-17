@@ -1,14 +1,13 @@
 
 console.log("SW startup");
-/*console.log("Request", this.Request);
-console.log("Response", this.Response);
-console.log("fetch", this.fetch);
-console.log("Cache", this.Cache);
-console.log("caches", this.caches);
-console.log("getAll", this.getAll);*/
+/*console.log("Request", self.Request);
+console.log("Response", self.Response);
+console.log("fetch", self.fetch);
+console.log("Cache", self.Cache);
+console.log("caches", self.caches);
+console.log("getAll", self.getAll);*/
 
 /*
-
     navigator: WorkerNavigator
     onactivate: null
     onerror: null
@@ -21,16 +20,32 @@ console.log("getAll", this.getAll);*/
     onnotificationerror: null
     onpush: null
     onsync: null
-
 */
+var notifyMe = function() {
+    if (!Notification) {
+        console.log('Notification : Please us a modern version of Chrome, Firefox, Opera or Firefox.');
+        return;
+    }
 
-this.addEventListener('install', function(event) {
+    if (Notification.permission !== "granted") Notification.requestPermission();
+
+    var notification = new Notification('Notification title', {
+        icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
+        body: "Hey there! You've been notified!",
+    });
+
+    // notification.onclick = function () {
+    //     window.open("http://stackoverflow.com/a/13328397/1269037");
+    // }
+};
+
+self.addEventListener('install', function(event) {
     console.log('install', event);
     //debugger;
     
 });
 
-this.addEventListener('activate', function(event) {
+self.addEventListener('activate', function(event) {
     //debugger;
     console.log('Activating...', event);
 
@@ -41,7 +56,7 @@ this.addEventListener('activate', function(event) {
     );*/
 });
 
-this.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en/tutorials/service-worker/introduction/
+self.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en/tutorials/service-worker/introduction/
     console.log('fetch', event);
 
     //event.respondWith(new Response("Hello everyone!"));
@@ -64,7 +79,7 @@ this.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en
     */
 });
 
-this.addEventListener('message', function(event) {
+self.addEventListener('message', function(event) {
     console.log('message 1', event);
     console.log("Got message in SW", event.data.text);
 
@@ -73,6 +88,14 @@ this.addEventListener('message', function(event) {
     if (event.data.port) event.data.port.postMessage("Woop!");
 });
 
-this.onmessage = function(event) {
-    console.log('message 2', event);
+self.onmessage = function(event) {
+    console.log("Got message in SW", event.data.text);
+
+    if (event.source) event.source.postMessage("Woopy!");
+    else console.log("No event.source");
+    if (event.data.port) event.data.port.postMessage("Woopa!");
 };
+
+setInterval(function() {
+    notifyMe();
+}, 10000);

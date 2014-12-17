@@ -18,11 +18,52 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script>
 
+        
+
         var log = function() {
             var $el = $('<div/>');
             $el.html(Array.prototype.join.call(arguments, '<br />'));
             $('#js-log').append($el);
         };
+        
+        window.onerror = function(err) {
+            log("Error", err);
+        };
+
+        window.addEventListener('message', function(event) {
+            console.log('message', event);
+            notifyMe();
+            //debugger;
+        });
+
+        var messageChannel = null;
+
+        if (window.MessageChannel) {
+            messageChannel = new MessageChannel();
+            messageChannel.port1.onmessage = function(event) {
+                log("Got reply from serviceworker via channel", event.data);
+            };
+        }
+
+        var notifyMe = function() {
+            if (!window.Notification) {
+                log('Notification : Please us a modern version of Chrome, Firefox, Opera or Firefox.');
+                return;
+            }
+
+            if (Notification.permission !== "granted") Notification.requestPermission();
+
+            var notification = new Notification('Notification title', {
+                icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
+                body: "Hey there! You've been notified!",
+            });
+
+            notification.onclick = function () {
+                window.open("http://stackoverflow.com/a/13328397/1269037");
+            }
+        };
+
+
 
         if (!('serviceWorker' in navigator)) {
             log("Browser does not support Service Worker, are you using Chrome Canary? Is the Service Worker flag switched on? chrome://flags/#enable-service-worker");
@@ -30,24 +71,18 @@
         else {
             log("Browser supports Service Worker");
 
-            console.log('EXIST ? navigator.serviceWorker', navigator.serviceWorker);
-
-            window.addEventListener('message', function(event) {
-                console.log('message', event);
-                //debugger;
-            });
+            console.log('EXIST ? navigator.serviceWorker', navigator.serviceWorker, navigator.serviceWorker.state);
 
             setTimeout(function() { // Wait 5s and send message
 
-                var event = new Event('message', {message: 'Test message'});
-                window.dispatchEvent(event);
+                window.dispatchEvent(new Event('message', {testing: 'Test message'}));
                 console.log('Event message triggered');
 
             }, 5000);
 
-            if (navigator.serviceWorker.current) {
+            if (navigator.serviceWorker.state == 'activated') {
                 log("Current Service Worker state: \\o/");
-                log('Go to chrome://serviceworker-internals/ to see Service Worker debug output');
+                log('Go to chrome://serviceworker-internals/ or chrome://inspect/#service-workers');
             } else {
                 log("No Service Worker active...");
             }
@@ -55,6 +90,10 @@
             $('#swinstall').on('click', function() {
 
                 log('About to try to install a Service Worker');
+
+                navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+                    console.log('navigator.serviceWorker.ready', serviceWorkerRegistration); // .pushManager
+                });
 
                 navigator.serviceWorker
                     .register('https://molokoloco.github.io/tests/worker.js', {
@@ -71,6 +110,14 @@
                             console.log('event', event);
                             log("Worker state is now ", event.target.state);
                         });
+
+                        if (messageChannel) {
+                            console.log('messageChannel', messageChannel);
+                            sw.postMessage({
+                                text: "Hi  world!",
+                                port: messageChannel && messageChannel.port2
+                            }, [messageChannel && messageChannel.port2]);
+                        }
 
                     }, function(err) {
                         console.log('ServiceWorker registration failed: ', err);
