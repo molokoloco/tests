@@ -9,53 +9,49 @@ console.log('SW startup');
     console.log('getAll', self.getAll);
 */
 
-var notifyMe = function() {
+// --------------------------------------------------------- //
+
+var notifInt = null;
+
+var notifyNow = function(mess) {
+    notifInt = null;
+    var notification = new Notification('Offres promos !', {
+        icon: 'http://img.clubic.com/05575691-photo-logo-bouygues-telecom.jpg',
+        body: mess ? mess : 'Bonjour ! Nouvelles offres sur Bouyguestelecom.fr !!!',
+    });
+    // notification.onclick = function () {}
+    notifInt = setTimeout(notifyNow, 20 * 1000, 'Later..');
+};
+
+var notifyMe = function(mess) {
     if (!Notification) {
         console.log('Notification : Please us a modern version of Chrome, Firefox, Opera or Firefox.');
         return;
     }
-
     if (Notification.permission !== 'granted') Notification.requestPermission();
-
-    var notification = new Notification('Notification title', {
-        icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
-        body: 'Hey there! You\'ve been notified from Web Worker!',
-    });
-
-    // notification.onclick = function () {}
+    if (notifInt) clearInterval(notifInt);
+    notifInt = setTimeout(notifyNow, 20 * 1000, mess);
 };
+
+// --------------------------------------------------------- //
 
 self.addEventListener('install', function(event) {
     console.log('install', event);
 });
 
-self.addEventListener('activate', function(event) {
-    //debugger;
+self.addEventListener('activate', function(event) { // can control pages !
     console.log('Activating...', event);
-
-    /*event.waitUntil(
-        somethingThatReturnsAPromise().then(function() {
-            console.log('Activated!');
-        })
-    );*/
+    // event.waitUntil(somethingThatReturnsAPromise().then(function() {}));
 });
 
 self.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en/tutorials/service-worker/introduction/
     console.log('fetch', event);
-
-    setTimeout(function() {
-        console.log('setTimeout (fetch) notif');
-        notifyMe();
-    }, 20 * 1000);
-
-    //event.respondWith(new Response('Hello everyone!'));
-
+    notifyMe();
     /*
     console.log('Fetching', event.request.url);
     console.log('Headers', new Set(event.request.headers));
     event.respondWith(fetch(event.request));
-    */
-    /*
+    event.respondWith(new Response('Hello everyone!'));
     event.respondWith(
         caches
         .match(event.request)
@@ -65,6 +61,10 @@ self.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en
             return fetch(event.request);
         });
     );
+    var requestURL = new URL(event.request);
+    if (requestURL.origin == location.origin) {
+        if (/^\/video\//.test(requestURL.pathname)) {}
+    }
     */
 });
 
@@ -77,16 +77,20 @@ self.addEventListener('message', function(event) {
     if (event.data.port) event.data.port.postMessage('Woop!');
 });
 
+// --------------------------------------------------------- //
+
 self.onmessage = function(event) {
     console.log('message 2', event);
     console.log('Got message in SW', event.data.text);
 
-    if (event.source) event.source.postMessage('Woopy!');
+    if (event.source) event.source.postMessage('Woopy from worker!');
     else console.log('No event.source');
-    if (event.data.port) event.data.port.postMessage('Woopa!');
+    if (event.data.port) event.data.port.postMessage('Woopa from worker!');
 };
 
 setTimeout(function() {
     console.log('setTimeout notif');
-    notifyMe();
+    notifyMe('Worker Roots');
 }, 20 * 1000);
+
+// --------------------------------------------------------- //

@@ -21,6 +21,7 @@
         (function() {
 
         var log = function() {
+            // console.log.apply(console, arguments);
             var $el = $('<div/>');
             $el.html(Array.prototype.join.call(arguments, '<br />'));
             $('#js-log').append($el);
@@ -31,16 +32,14 @@
         };
 
         window.addEventListener('message', function(event) {
-            console.log('message', event);
+            console.log('message from window', event);
             //debugger;
         });
 
-        var messageChannel = null;
-
         if (window.MessageChannel) {
-            messageChannel = new MessageChannel();
+            var messageChannel = new MessageChannel();
             messageChannel.port1.onmessage = function(event) {
-                log('messageChannel.port1.onmessage', event.data);
+                log('message from channel', event);
             };
         }
 
@@ -50,17 +49,15 @@
         // }, 5000);
 
 
-
         if (!('serviceWorker' in navigator)) {
             log('Browser does not support Service Worker, are you using Chrome Canary? Is the Service Worker flag switched on? chrome://flags/#enable-service-worker');
             return;
         }
 
         log('Browser supports Service Worker');
+        console.log('navigator.serviceWorker ok');
 
-        console.log('navigator.serviceWorker', navigator.serviceWorker, navigator.serviceWorker.state);
-
-        if (navigator.serviceWorker.controller && navigator.serviceWorker.controller.state == 'activated') {
+        if (navigator.serviceWorker.controller) {
             log('Current Service Worker state: '+navigator.serviceWorker.controller.state);
             log('Go to chrome://serviceworker-internals/ or chrome://inspect/#service-workers');
         }
@@ -78,13 +75,14 @@
                 console.log('navigator.serviceWorker.ready', serviceWorkerRegistration); // .pushManager
 
                 serviceWorkerRegistration.addEventListener('statechange', function(event) {
-                        console.log('event statechange()', event);
-                    });
+                    console.log('event statechange()', event);
+                });
 
                 serviceWorkerRegistration.addEventListener('message', function(event) {
                         console.log('event message()', event);
                         log('Worker state is now ', event.target.state);
                 });
+
             });
 
             navigator.serviceWorker
@@ -92,11 +90,8 @@
                     scope: '/tests/'
                 })
                 .then(function(myWorker) {
-
                     console.log('myWorker', myWorker);
-
                     log('Successfully installed ServiceWorker');
-                    log('Go to chrome://serviceworker-internals/ or chrome://inspect/#service-workers');
 
                     myWorker.addEventListener('statechange', function(event) {
                         console.log('event', event);
@@ -133,6 +128,36 @@
                 });
 
         });
+
+
+        /*
+            // http://w3c.github.io/push-api/
+            // https://example.com/serviceworker.js
+
+            this.onpush = function(event) {
+              console.log(event.data);
+              // From here we can write the data to IndexedDB, send it to any open windows,
+              // display a notification, etc.
+            }
+
+            // https://example.com/webapp.js
+            navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+              serviceWorkerRegistration.pushManager.register().then(
+                function(pushRegistration) {
+                  console.log(pushRegistration.registrationId);
+                  console.log(pushRegistration.endpoint);
+                  // The push registration details needed by the application server to push
+                  // messages to the push service are now available, and can be sent to the
+                  // application server using, for example, an XMLHttpRequest.
+                }, function(error) {
+                  // During development it often helps to log errors to the console. In a
+                  // production environment it might make sense to also report information
+                  // about errors back to the application server.
+                  console.log(error);
+                }
+              );
+            });
+        */
 
     }());
 
