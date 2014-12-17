@@ -81,7 +81,7 @@
 
         console.log('navigator.serviceWorker', navigator.serviceWorker, navigator.serviceWorker.state);
 
-        if (navigator.serviceWorker.state == 'activated') {
+        if (navigator.serviceWorker.controller && navigator.serviceWorker.controller.state == 'activated') {
             log("Current Service Worker state: \\o/");
             log('Go to chrome://serviceworker-internals/ or chrome://inspect/#service-workers');
         }
@@ -113,7 +113,7 @@
                         log("Worker state is now ", event.target.state);
                     });
 
-                    if (messageChannel) {
+                    if (messageChannel && myWorker.postMessage) {
                         console.log('messageChannel', messageChannel);
                         myWorker.postMessage({
                             text: "Hi  world!",
