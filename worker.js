@@ -43,6 +43,11 @@ self.addEventListener('activate', function(event) {
 self.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en/tutorials/service-worker/introduction/
     console.log('fetch', event);
 
+    setTimeout(function() {
+        console.log('setTimeout (fetch) notif');
+        notifyMe();
+    }, 20 * 1000);
+
     //event.respondWith(new Response('Hello everyone!'));
 
     /*
