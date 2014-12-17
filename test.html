@@ -2,20 +2,20 @@
 <html>
 
 <head>
-    <meta charset="utf-8" />
+    <meta charset='utf-8' />
     <title>Testing Services Workers</title>
 </head>
 
 <body>
 
-    <div style="max-width: 700px; margin: 0 auto 0 auto;">
-        <button id="swinstall">Install Service Worker</button>
-        <button id="swuninstall">Uninstall Service Worker</button>
-        <div id="js-log" style="height: 400px; overflow: scroll; color: white; background: black; font-family: monospace; line-height: 150%; font-size: 12px; padding: 7px;"></div>
-        <a href="http://mattandre.ws">mattandre.ws</a> <a href="http://twitter.com/andrewsmatt">@andrewsmatt</a>
+    <div style='max-width: 700px; margin: 0 auto 0 auto;'>
+        <button id='swinstall'>Install Service Worker</button>
+        <button id='swuninstall'>Uninstall Service Worker</button>
+        <div id='js-log' style='height: 400px; overflow: scroll; color: white; background: black; font-family: monospace; line-height: 150%; font-size: 12px; padding: 7px;'></div>
+        <a href='http://mattandre.ws'>mattandre.ws</a> <a href='http://twitter.com/andrewsmatt'>@andrewsmatt</a>
     </div>
   
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src='//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
     <script>
 
         (function() {
@@ -27,7 +27,7 @@
         };
         
         window.onerror = function(err) {
-            log("Error", err);
+            log('Error', err);
         };
 
         window.addEventListener('message', function(event) {
@@ -41,7 +41,7 @@
         if (window.MessageChannel) {
             messageChannel = new MessageChannel();
             messageChannel.port1.onmessage = function(event) {
-                log("Got reply from serviceworker via channel", event.data);
+                log('messageChannel.port1.onmessage', event.data);
             };
         }
 
@@ -51,42 +51,38 @@
                 return;
             }
 
-            if (Notification.permission !== "granted") Notification.requestPermission();
+            if (Notification.permission !== 'granted') Notification.requestPermission();
 
             var notification = new Notification('Notification title', {
                 icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
-                body: "Hey there! You've been notified from PAGE!",
+                body: 'Hey there! You\'ve been notified from PAGE!',
             });
 
-            notification.onclick = function () {
-                window.open("http://stackoverflow.com/a/13328397/1269037");
-            }
+            //notification.onclick = function () { }
         };
 
         setTimeout(function() { // Wait 5s and send message
-
             window.dispatchEvent(new Event('message', {testing: 'Test message'}));
             console.log('Event message triggered');
-
         }, 5000);
 
 
 
         if (!('serviceWorker' in navigator)) {
-            log("Browser does not support Service Worker, are you using Chrome Canary? Is the Service Worker flag switched on? chrome://flags/#enable-service-worker");
+            log('Browser does not support Service Worker, are you using Chrome Canary? Is the Service Worker flag switched on? chrome://flags/#enable-service-worker');
             return;
         }
 
-        log("Browser supports Service Worker");
+        log('Browser supports Service Worker');
 
         console.log('navigator.serviceWorker', navigator.serviceWorker, navigator.serviceWorker.state);
 
-        if (navigator.serviceWorker.controller && navigator.serviceWorker.controller.state == 'activated') {
-            log("Current Service Worker state: \\o/");
+        if ((navigator.serviceWorker.controller && navigator.serviceWorker.controller.state == 'activated') || navigator.serviceWorker.ready) {
+            log('Current Service Worker state: \\o/');
             log('Go to chrome://serviceworker-internals/ or chrome://inspect/#service-workers');
         }
         else {
-            log("No Service Worker active...");
+            log('No Service Worker active...');
         }
 
         $('#swinstall').on('click', function() {
@@ -110,13 +106,13 @@
 
                     myWorker.addEventListener('statechange', function(event) {
                         console.log('event', event);
-                        log("Worker state is now ", event.target.state);
+                        log('Worker state is now ', event.target.state);
                     });
 
                     if (messageChannel && myWorker.postMessage) {
                         console.log('messageChannel', messageChannel);
                         myWorker.postMessage({
-                            text: "Hi  world!",
+                            text: 'Hi  world!',
                             port: messageChannel && messageChannel.port2
                         }, [messageChannel && messageChannel.port2]);
                     }
