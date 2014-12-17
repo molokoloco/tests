@@ -46,7 +46,7 @@
         }
 
         var notifyMe = function() {
-            if (!window.Notification) {
+            if (!Notification) {
                 log('Notification : Please us a modern version of Chrome, Firefox, Opera or Firefox.');
                 return;
             }
@@ -113,7 +113,7 @@
 
                         if (messageChannel) {
                             console.log('messageChannel', messageChannel);
-                            sw.postMessage({
+                            myWorker.postMessage({
                                 text: "Hi  world!",
                                 port: messageChannel && messageChannel.port2
                             }, [messageChannel && messageChannel.port2]);
