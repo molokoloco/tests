@@ -1,5 +1,5 @@
 
-console.log('SW startup', self);
+console.log('SW startup');
 /*
     console.log('Request', self.Request);
     console.log('Response', self.Response);
@@ -27,7 +27,7 @@ var notifyNow = function(mess) {
 
 var notifyMe = function(mess) {
     if (!Notification) {
-        console.log('Notification : Please us a modern version of Chrome, Firefox, Opera ...');
+        console.log('Notification : Please us a modern version of Chrome, Firefox, Opera or Firefox.');
         return;
     }
     if (Notification.permission !== 'granted') Notification.requestPermission();
@@ -48,8 +48,7 @@ self.addEventListener('activate', function(event) { // can control pages !
 
 self.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en/tutorials/service-worker/introduction/
     console.log('fetch', event);
-    
-    notifyMe('Detect new network request');
+    notifyMe();
     /*
     console.log('Fetching', event.request.url);
     console.log('Headers', new Set(event.request.headers));
@@ -90,25 +89,6 @@ self.onmessage = function(event) {
     else console.log('No event.source');
     if (event.data.port) event.data.port.postMessage('Woopa from worker!');
 };
-
-if (MessageChannel) {
-    try {
-        var messageChannel = new MessageChannel();
-
-        messageChannel.port1.onmessage = function(event) {
-            log('message from worker channel', event);
-        };
-
-        if (self.postMessage) {
-            self.postMessage({
-                text: 'Hi Worker world!',
-                port: messageChannel && messageChannel.port2
-            }, [messageChannel && messageChannel.port2]);
-        }
-    } catch(e) {
-        console.log('No messageChannel', e);
-    }
-}
 
 // --------------------------------------------------------- //
 

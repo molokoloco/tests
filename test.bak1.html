@@ -4,38 +4,21 @@
 <head>
     <meta charset='utf-8' />
     <title>Testing Services Workers</title>
-    <style type="text/css">
-
-    #console {
-        max-width: 700px;
-        margin: 0 auto 0 auto;
-    }
-
-    #js-log {
-        height: 300px;
-        overflow: scroll;
-        color: white;
-        background: black;
-        font-family: monospace;
-        line-height: 150%;
-        font-size: 12px;
-        padding: 7px;
-    }
-    </style>
 </head>
 
 <body>
 
-    <div id="console">
-        <button id="swinstall">Install Service Worker</button> <button id="swuninstall">Uninstall Service Worker</button><br />
-        <br />
-        <div id="js-log"></div>
+    <div style='max-width: 700px; margin: 0 auto 0 auto;'>
+        <button id='swinstall'>Install Service Worker</button>
+        <button id='swuninstall'>Uninstall Service Worker</button>
+        <div id='js-log' style='height: 400px; overflow: scroll; color: white; background: black; font-family: monospace; line-height: 150%; font-size: 12px; padding: 7px;'></div>
+        <a href='http://mattandre.ws'>mattandre.ws</a> <a href='http://twitter.com/andrewsmatt'>@andrewsmatt</a>
     </div>
   
     <script src='//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
     <script>
 
-    (function() {
+        (function() {
 
         var log = function() {
             // console.log.apply(console, arguments);
@@ -56,7 +39,7 @@
         if (window.MessageChannel) {
             var messageChannel = new MessageChannel();
             messageChannel.port1.onmessage = function(event) {
-                log('message from page channel', event);
+                log('message from channel', event);
             };
         }
 
