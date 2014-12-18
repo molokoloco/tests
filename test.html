@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <meta charset='utf-8' />
+    <meta charset="utf-8" />
     <title>Testing Services Workers</title>
     <style type="text/css">
 
@@ -56,8 +56,15 @@
         if (window.MessageChannel) {
             var messageChannel = new MessageChannel();
             messageChannel.port1.onmessage = function(event) {
-                log('message from page channel', event);
+                console.log('message from page channel 1', event);
             };
+
+            messageChannel.port2.addEventListener('message', function(event) {
+                console.log('page port2 received:'+event.data);
+            });
+            messageChannel.port2.start();
+            messageChannel.port2.postMessage('HELLO');
+
         }
 
         // setTimeout(function() { // Wait 5s and send message
@@ -91,6 +98,8 @@
             navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
                 console.log('navigator.serviceWorker.ready', serviceWorkerRegistration); // .pushManager
 
+                // window.location.reload(); // ???
+
                 serviceWorkerRegistration.addEventListener('statechange', function(event) {
                     console.log('event statechange()', event);
                 });
@@ -103,7 +112,7 @@
             });
 
             navigator.serviceWorker
-                .register('https://molokoloco.github.io/tests/worker.js', {
+                .register('https://molokoloco.github.io/tests/worker.js', { // INSTALL !!!
                     scope: '/tests/'
                 })
                 .then(function(myWorker) {
