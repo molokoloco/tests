@@ -1,15 +1,6 @@
 
-console.log('SW startup', self);
-/*
-    console.log('Request', self.Request);
-    console.log('Response', self.Response);
-    console.log('fetch', self.fetch);
-    console.log('Cache', self.Cache);
-    console.log('caches', self.caches);
-    console.log('getAll', self.getAll);
-*/
-
-var self = self || this;
+console.log('SW init');
+// var self = self || this;
 
 // --------------------------------------------------------- //
 
@@ -23,8 +14,7 @@ var notifyNow = function(mess) {
         icon: 'http://img.clubic.com/05575691-photo-logo-bouygues-telecom.jpg',
         body: mess ? mess : 'Bonjour ! Nouvelles offres sur Bouyguestelecom.fr !!! ('+count+')',
     });
-    // notification.onclick = function () {}
-    // if (count < 2) notifInt = setTimeout(notifyNow, 20 * 1000, 'Later after..');
+    // notification.onclick = function () {};
 };
 
 var notifyMe = function(mess) {
@@ -70,11 +60,13 @@ setTimeout(pollServer, 5000);
 
 self.addEventListener('install', function(event) {
     console.log('install', event);
+    notifyMe('Worker install');
 });
 
 self.addEventListener('activate', function(event) { // can control pages !
     console.log('Activating...', event);
     // event.waitUntil(somethingThatReturnsAPromise().then(function() {}));
+    notifyMe('Worker activate');
 });
 
 self.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en/tutorials/service-worker/introduction/
@@ -106,8 +98,8 @@ self.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en
 // --------------------------------------------------------- //
 
 self.onmessage = function(event) {
-    console.log('message 2', event);
-    console.log('Got message in SW', event.data.text);
+    console.log('Got message in SW1', event.data);
+    notifyMe('onmessage1 '+event.data);
 
     if (event.source) event.source.postMessage('Woopy from worker!');
     else console.log('No event.source');
@@ -115,8 +107,8 @@ self.onmessage = function(event) {
 };
 
 self.addEventListener('message', function(event) {
-    console.log('message 1', event);
-    console.log('Got message in SW', event.data.text);
+    console.log('Got message in SW2', event.data);
+    notifyMe('onmessage2 '+event.data);
 
     if (event.source) event.source.postMessage('Woop!');
     else console.log('No event.source');
@@ -155,19 +147,19 @@ self.onerror = function(event) {
     console.log('onactivate', event);
 };
 self.ongeofenceenter = function(event) {
-    console.log('onactivate', event);
+    console.log('ongeofenceenter', event);
 };
 self.ongeofenceleave = function(event) {
-    console.log('onactivate', event);
+    console.log('ongeofenceleave', event);
 };
 self.onsync = function(event) {
-    console.log('onactivate', event);
+    console.log('onsync', event);
 };
 self.onnotificationclick = function(event) {
-    console.log('onactivate', event);
+    console.log('onnotificationclick', event);
 };
 self.onnotificationerror = function(event) {
-    console.log('onactivate', event);
+    console.log('onnotificationerror', event);
 };
 self.onpush = function(event) { // // http://w3c.github.io/push-api/
     console.log('onpush', event);
@@ -175,4 +167,4 @@ self.onpush = function(event) { // // http://w3c.github.io/push-api/
 
 // --------------------------------------------------------- //
 
-notifyMe('Worker Start');
+notifyMe('Worker Loaded');

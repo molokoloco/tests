@@ -159,7 +159,11 @@
                     }
 
                 }, function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
+                    console.log('ServiceWorker registration failed(1): ', err);
+                    log('ServiceWorker registration failed: ', err);
+                })
+                .catch(function(err) {
+                    console.log('ServiceWorker registration failed(2): ', err);
                     log('ServiceWorker registration failed: ', err);
                 });
 
