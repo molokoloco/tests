@@ -1,25 +1,22 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8" />
     <title>Testing Services Workers</title>
     <style type="text/css">
-
     #console {
         max-width: 700px;
         margin: 0 auto 0 auto;
     }
-
     #js-log {
-        height: 300px;
+        height: 280px;
         overflow: scroll;
-        color: white;
         background: black;
         font-family: monospace;
+        color: yellow;
         line-height: 150%;
         font-size: 12px;
-        padding: 7px;
+        padding: 10px;
     }
     </style>
 </head>
@@ -32,39 +29,37 @@
         <div id="js-log"></div>
     </div>
   
-    <script src='//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <!-- <script src="./worker.js"></script> -->
     <script>
 
     (function() {
 
         var log = function() {
-            // console.log.apply(console, arguments);
-            var $el = $('<div/>');
-            $el.html(Array.prototype.join.call(arguments, '<br />'));
+            var $el = $('<div/>').html(Array.prototype.join.call(arguments, '<br />'));
             $('#js-log').append($el);
         };
         
         window.onerror = function(err) {
-            log('Error', err);
+            log('Error!', err);
         };
 
         window.addEventListener('message', function(event) {
             console.log('message from window', event);
-            //debugger;
         });
 
-        if (window.MessageChannel) {
+        if ('MessageChannel' in window) {
             var messageChannel = new MessageChannel();
             messageChannel.port1.onmessage = function(event) {
-                console.log('message from page channel 1', event);
+                console.log('messageChannel 1', event.data);
             };
-
-            messageChannel.port2.addEventListener('message', function(event) {
-                console.log('page port2 received:'+event.data);
-            });
-            messageChannel.port2.start();
-            messageChannel.port2.postMessage('HELLO');
-
+            messageChannel.port2.onmessage = function(event) {
+                console.log('messageChannel 2', event.data);
+            };
+            messageChannel.port1.start();
+            setTimeout(function() {
+                messageChannel.port1.postMessage('Hello from page !');
+            }, 5000);
         }
 
         // setTimeout(function() { // Wait 5s and send message
@@ -72,6 +67,7 @@
         //     console.log('Event message triggered');
         // }, 5000);
 
+        // ------------------------ Service Worker detect ------------------------ //
 
         if (!('serviceWorker' in navigator)) {
             log('Browser does not support Service Worker, are you using Chrome Canary? Is the Service Worker flag switched on? chrome://flags/#enable-service-worker');
@@ -89,27 +85,57 @@
             log('No Service Worker active...');
         }
 
-        if (Notification && Notification.permission !== 'granted') Notification.requestPermission();
+        // ------------------------ Notification detect ------------------------ //
+
+        if (!('Notification' in window)) {
+            log('Browser does not support Notification...');
+            return;
+        }
+
+        if (Notification.permission !== 'granted') Notification.requestPermission();
+
+        log('Browser supports Notification');
+        console.log('window.Notification ok');
+
+        // ------------------------ Service Worker EVENTS ------------------------ //
+
+        navigator.serviceWorker.ready.then(function(myWorker) {
+            console.log('navigator.serviceWorker.ready', myWorker); // .pushManager
+
+            // window.location.reload(); // ???
+
+            myWorker.addEventListener('statechange', function(event) {
+                console.log('event statechange()', event);
+            });
+
+            myWorker.addEventListener('message', function(event) {
+                console.log('event message()', event);
+                log('Worker state is now ', event.target.state);
+            });
+
+            /*
+            myWorker.pushManager.register().then(
+                function(pushRegistration) {
+                  console.log(pushRegistration.registrationId);
+                  console.log(pushRegistration.endpoint);
+                  // The push registration details needed by the application server to push
+                  // messages to the push service are now available, and can be sent to the
+                  // application server using, for example, an XMLHttpRequest.
+                }, function(error) {
+                  // During development it often helps to log errors to the console. In a
+                  // production environment it might make sense to also report information
+                  // about errors back to the application server.
+                  console.log(error);
+                }
+              );
+            */
+        });
+
+        // ------------------------ Service Worker INSTALL ------------------------ //
 
         $('#swinstall').on('click', function() {
 
             log('About to try to install a Service Worker');
-
-            navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
-                console.log('navigator.serviceWorker.ready', serviceWorkerRegistration); // .pushManager
-
-                // window.location.reload(); // ???
-
-                serviceWorkerRegistration.addEventListener('statechange', function(event) {
-                    console.log('event statechange()', event);
-                });
-
-                serviceWorkerRegistration.addEventListener('message', function(event) {
-                        console.log('event message()', event);
-                        log('Worker state is now ', event.target.state);
-                });
-
-            });
 
             navigator.serviceWorker
                 .register('https://molokoloco.github.io/tests/worker.js', { // INSTALL !!!
@@ -139,6 +165,8 @@
 
         });
 
+        // ------------------------ Service Worker REMOVE ------------------------ //
+
         $('#swuninstall').on('click', function() {
             log('About to try to uninstall a Service Worker');
 
@@ -155,38 +183,7 @@
 
         });
 
-
-        /*
-            // http://w3c.github.io/push-api/
-            // https://example.com/serviceworker.js
-
-            this.onpush = function(event) {
-              console.log(event.data);
-              // From here we can write the data to IndexedDB, send it to any open windows,
-              // display a notification, etc.
-            }
-
-            // https://example.com/webapp.js
-            navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
-              serviceWorkerRegistration.pushManager.register().then(
-                function(pushRegistration) {
-                  console.log(pushRegistration.registrationId);
-                  console.log(pushRegistration.endpoint);
-                  // The push registration details needed by the application server to push
-                  // messages to the push service are now available, and can be sent to the
-                  // application server using, for example, an XMLHttpRequest.
-                }, function(error) {
-                  // During development it often helps to log errors to the console. In a
-                  // production environment it might make sense to also report information
-                  // about errors back to the application server.
-                  console.log(error);
-                }
-              );
-            });
-        */
-
     }());
-
     </script>
 </body>
 </html>

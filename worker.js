@@ -9,41 +9,7 @@ console.log('SW startup', self);
     console.log('getAll', self.getAll);
 */
 
-// --------------------------------------------------------- //
-
-var state = null;
-
-var pollServer = function() {
-    console.log('pollServer()');
-
-    fetch('http://www.bytel.tv/notifs/poll.php?message=worker1')
-        .then(function(response) {
-            //console.log('response', response);
-            return response.json();
-        })
-        .then(function(json) {
-            //console.log('json', json);
-            if (json && json.message) {
-                console.log('message', json.message);
-
-                if (state && state != json.message) {
-
-                    notifyNow('New response ! '+ json.message);
-
-                }
-                if (!state) state = json.message;
-            }
-        })
-        .catch(function(err) {
-            console.log('err', err);
-        });
-
-    setTimeout(pollServer, 10000);
-};
-
-
-pollServer();
-
+var self = self || this;
 
 // --------------------------------------------------------- //
 
@@ -58,30 +24,7 @@ var notifyNow = function(mess) {
         body: mess ? mess : 'Bonjour ! Nouvelles offres sur Bouyguestelecom.fr !!! ('+count+')',
     });
     // notification.onclick = function () {}
-    if (count < 2) {
-        
-        notifInt = setTimeout(notifyNow, 20 * 1000, 'Later after..');
-
-        try {
-            var messageChannel = new MessageChannel();
-
-            messageChannel.port1.onmessage = function(event) {
-                log('message from worker channel', event);
-            };
-
-            if (self.postMessage) {
-                self.postMessage({
-                    text: 'Hi Worker world!',
-                    port: messageChannel && messageChannel.port2
-                }, [messageChannel && messageChannel.port2]);
-            }
-        } catch(e) {
-            console.log('No messageChannel', e);
-        }
-
-        
-
-    }
+    // if (count < 2) notifInt = setTimeout(notifyNow, 20 * 1000, 'Later after..');
 };
 
 var notifyMe = function(mess) {
@@ -93,6 +36,35 @@ var notifyMe = function(mess) {
     if (notifInt) clearInterval(notifInt);
     notifInt = setTimeout(notifyNow, 20 * 1000, mess);
 };
+
+// --------------------------------------------------------- //
+
+var pollServer = function() {
+    console.log('pollServer()');
+
+    fetch('http://www.bytel.tv/notifs/poll.php')
+        .then(function(response) {
+            // console.log('response', response);
+            return response.json();
+        })
+        .then(function(json) {
+            // console.log('json', json);
+            if (json && json.message) {
+                // console.log('message', json.message);
+                if (json.message != 'reset') {
+                    notifyNow(json.message);
+                    fetch('http://www.bytel.tv/notifs/poll.php?message=reset'); // Reset
+                }
+            }
+        })
+        .catch(function(err) {
+            console.log('err', err);
+        });
+
+    setTimeout(pollServer, 3000);
+};
+
+setTimeout(pollServer, 5000);
 
 // --------------------------------------------------------- //
 
@@ -108,7 +80,8 @@ self.addEventListener('activate', function(event) { // can control pages !
 self.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en/tutorials/service-worker/introduction/
     console.log('fetch', event.request.url, event);
     
-    notifyMe('Detect new network request');
+    // notifyMe('Detect new network request');
+
     /*
     console.log('Fetching', event.request.url);
     console.log('Headers', new Set(event.request.headers));
@@ -130,15 +103,6 @@ self.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en
     */
 });
 
-self.addEventListener('message', function(event) {
-    console.log('message 1', event);
-    console.log('Got message in SW', event.data.text);
-
-    if (event.source) event.source.postMessage('Woop!');
-    else console.log('No event.source');
-    if (event.data.port) event.data.port.postMessage('Woop!');
-});
-
 // --------------------------------------------------------- //
 
 self.onmessage = function(event) {
@@ -150,20 +114,36 @@ self.onmessage = function(event) {
     if (event.data.port) event.data.port.postMessage('Woopa from worker!');
 };
 
+self.addEventListener('message', function(event) {
+    console.log('message 1', event);
+    console.log('Got message in SW', event.data.text);
+
+    if (event.source) event.source.postMessage('Woop!');
+    else console.log('No event.source');
+    if (event.data.port) event.data.port.postMessage('Woop!');
+});
+
 if (MessageChannel) {
     try {
         var messageChannel = new MessageChannel();
-
         messageChannel.port1.onmessage = function(event) {
-            log('message from worker channel', event);
+            console.log('worker messageChannel 1', event.data);
         };
+        messageChannel.port2.onmessage = function(event) {
+            console.log('worker messageChannel 2', event.data);
+        };
+        messageChannel.port1.start();
+        
+        setTimeout(function() {
+            messageChannel.port1.postMessage('Hello from worker !');
+        }, 5000);
 
-        if (self.postMessage) {
+        /*if (self.postMessage) {
             self.postMessage({
                 text: 'Hi Worker world!',
                 port: messageChannel && messageChannel.port2
             }, [messageChannel && messageChannel.port2]);
-        }
+        }*/
     } catch(e) {
         console.log('No messageChannel', e);
     }
@@ -189,31 +169,10 @@ self.onnotificationclick = function(event) {
 self.onnotificationerror = function(event) {
     console.log('onactivate', event);
 };
+self.onpush = function(event) { // // http://w3c.github.io/push-api/
+    console.log('onpush', event);
+};
 
 // --------------------------------------------------------- //
 
-var xmlhttp;
-
-if (XMLHttpRequest) xmlhttp = new XMLHttpRequest();
-
-
-xmlhttp.onreadystatechange = function() {
-    if (xmlhttp.readyState == 4 ) {
-       if(xmlhttp.status == 200){
-           document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
-       }
-       else if(xmlhttp.status == 400) {
-          alert('There was an error 400')
-       }
-       else {
-           alert('something else other than 200 was returned')
-       }
-    }
-}
-
-xmlhttp.open("GET", "ajax_info.txt", true);
-xmlhttp.send();
-
-// --------------------------------------------------------- //
-
-notifyMe('Worker Roots');
+notifyMe('Worker Start');
