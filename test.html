@@ -4,19 +4,34 @@
     <meta charset="utf-8" />
     <title>Testing Services Workers</title>
     <style type="text/css">
+    html, body {
+        background: lightgrey;
+        text-align: center;
+    }
+    * {
+        font: 12px Arial;
+        color: grey;
+    }
+    h1 {
+        font-size: 24px;
+        font-weight: bold;
+    }
     #console {
         max-width: 700px;
-        margin: 0 auto 0 auto;
+        margin: 40px auto 0 auto;
     }
     #js-log {
         height: 280px;
         overflow: scroll;
         background: black;
+        padding: 10px;
+    }
+    #js-log div {
         font-family: monospace;
         color: yellow;
         line-height: 150%;
         font-size: 12px;
-        padding: 10px;
+        text-align: left;
     }
     </style>
 </head>
@@ -24,8 +39,11 @@
 <body>
 
     <div id="console">
+        <h1>Service Worker Test</h1>
         <div id="js-log"></div><br />
-        <!--//<button id="swinstall">Install Service Worker</button>//--><button id="swuninstall">Uninstall Service Worker</button> URL to send messages : <a href="http://www.bytel.tv/notifs/poll.php?message=HERE%20THE%20MESSAGE" target="_blank">http://www.bytel.tv/notifs/poll.php?message=HERE%20THE%20MESSAGE</a>
+        <!--//<button id="swinstall">Install Service Worker</button>//--><button id="swuninstall">Uninstall Service Worker</button><br />
+        <br />
+        URL to send messages : <a href="http://www.bytel.tv/notifs/poll.php?message=HERE%20THE%20MESSAGE" target="_blank">http://www.bytel.tv/notifs/poll.php?message=HERE%20THE%20MESSAGE</a>
     </div>
   
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
