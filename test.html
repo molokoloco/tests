@@ -45,29 +45,6 @@
             log('Error!', err);
         };
 
-        window.addEventListener('message', function(event) {
-            console.log('message from window', event);
-        });
-
-        if ('MessageChannel' in window) {
-            var messageChannel = new MessageChannel();
-            messageChannel.port1.onmessage = function(event) {
-                console.log('messageChannel 1', event.data);
-            };
-            messageChannel.port2.onmessage = function(event) {
-                console.log('messageChannel 2', event.data);
-            };
-            messageChannel.port1.start();
-            setTimeout(function() {
-                messageChannel.port1.postMessage('Hello from page !');
-            }, 5000);
-        }
-
-        // setTimeout(function() { // Wait 5s and send message
-        //     window.dispatchEvent(new Event('message', {testing: 'Test message'}));
-        //     console.log('Event message triggered');
-        // }, 5000);
-
         // ------------------------ Service Worker INSTALL ------------------------ //
 
         var installWorker = function() {
@@ -81,19 +58,7 @@
                 .then(function(myWorker) {
                     console.log('myWorker', myWorker);
                     log('Successfully installed ServiceWorker');
-
-                    myWorker.addEventListener('statechange', function(event) {
-                        console.log('event', event);
-                        log('Worker state is now ', event.target.state);
-                    });
-
-                    if (messageChannel && myWorker.postMessage) {
-                        console.log('messageChannel', messageChannel);
-                        myWorker.postMessage({
-                            text: 'Hi  world!',
-                            port: messageChannel && messageChannel.port2
-                        }, [messageChannel && messageChannel.port2]);
-                    }
+                    window.location.reload(); // to use it now
 
                 }, function(err) {
                     console.log('ServiceWorker registration failed(1): ', err);
@@ -115,9 +80,9 @@
                 .unregister()
                 .then(function() {
                     log('Successfully uninstalled ServiceWorker');
-                }, function(why) {
-                    console.log(why)
-                    log('Failed to uninstall ' + why);
+                }, function(err) {
+                    console.log(err);
+                    log('Failed to uninstall: ' + err);
                 });
         };
 
@@ -157,16 +122,23 @@
         navigator.serviceWorker.ready.then(function(myWorker) {
             console.log('navigator.serviceWorker.ready', myWorker); // .pushManager
 
-            // window.location.reload(); // ?
-
             myWorker.addEventListener('statechange', function(event) {
-                console.log('event statechange()', event);
+                console.log('event', event);
+                log('Worker state is now ', event.target.state);
             });
 
             myWorker.addEventListener('message', function(event) {
                 console.log('event message()', event);
                 log('Worker state is now ', event.target.state);
             });
+
+            if (messageChannel && myWorker.postMessage) {
+                console.log('messageChannel', messageChannel);
+                myWorker.postMessage({
+                    text: 'Hi  world!',
+                    port: messageChannel && messageChannel.port2
+                }, [messageChannel && messageChannel.port2]);
+            }
 
             /*
             myWorker.pushManager.register().then(
@@ -190,6 +162,31 @@
 
         $('#swinstall').on('click', installWorker);
         $('#swuninstall').on('click', uninstallWorker);
+
+        // ------------------------ Window messaging ------------------------ //
+
+        window.addEventListener('message', function(event) {
+            console.log('message from window', event);
+        });
+
+        if ('MessageChannel' in window) {
+            var messageChannel = new MessageChannel();
+            messageChannel.port1.onmessage = function(event) {
+                console.log('messageChannel 1', event.data);
+            };
+            messageChannel.port2.onmessage = function(event) {
+                console.log('messageChannel 2', event.data);
+            };
+            messageChannel.port1.start();
+            setTimeout(function() {
+                messageChannel.port1.postMessage('Hello from page !');
+            }, 5000);
+        }
+
+        // setTimeout(function() { // Wait 5s and send message
+        //     window.dispatchEvent(new Event('message', {testing: 'Test message'}));
+        //     console.log('Event message triggered');
+        // }, 5000);
 
     }());
     </script>
