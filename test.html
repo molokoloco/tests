@@ -24,9 +24,9 @@
 <body>
 
     <div id="console">
-        <button id="swinstall">Install Service Worker</button> <button id="swuninstall">Uninstall Service Worker</button><br />
+        <div id="js-log"></div><br />
         <br />
-        <div id="js-log"></div>
+        <!-- <button id="swinstall">Install Service Worker</button> --> <button id="swuninstall">Uninstall Service Worker</button>
     </div>
   
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -83,6 +83,7 @@
         }
         else {
             log('No Service Worker active...');
+            setTimeout(installWorker, 2000); // Auto-install worker
         }
 
         // ------------------------ Notification detect ------------------------ //
@@ -92,17 +93,17 @@
             return;
         }
 
-        if (Notification.permission !== 'granted') Notification.requestPermission();
-
         log('Browser supports Notification');
         console.log('window.Notification ok');
+
+        if (Notification.permission !== 'granted') Notification.requestPermission();
 
         // ------------------------ Service Worker EVENTS ------------------------ //
 
         navigator.serviceWorker.ready.then(function(myWorker) {
             console.log('navigator.serviceWorker.ready', myWorker); // .pushManager
 
-            // window.location.reload(); // ???
+            // window.location.reload(); // ?
 
             myWorker.addEventListener('statechange', function(event) {
                 console.log('event statechange()', event);
@@ -133,7 +134,7 @@
 
         // ------------------------ Service Worker INSTALL ------------------------ //
 
-        $('#swinstall').on('click', function() {
+        var installWorker = function() {
 
             log('About to try to install a Service Worker');
 
@@ -167,7 +168,9 @@
                     log('ServiceWorker registration failed: ', err);
                 });
 
-        });
+        };
+
+        $('#swinstall').on('click', installWorker);
 
         // ------------------------ Service Worker REMOVE ------------------------ //
 

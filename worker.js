@@ -17,7 +17,7 @@ var notifyNow = function(mess) {
     // notification.onclick = function () {};
 };
 
-var notifyMe = function(mess) {
+var notifyLater = function(mess) {
     if (!Notification) {
         console.log('Notification : Please us a modern version of Chrome, Firefox, Opera ...');
         return;
@@ -34,13 +34,11 @@ var pollServer = function() {
 
     fetch('http://www.bytel.tv/notifs/poll.php')
         .then(function(response) {
-            // console.log('response', response);
             return response.json();
         })
         .then(function(json) {
-            // console.log('json', json);
             if (json && json.message) {
-                // console.log('message', json.message);
+                // console.log('message', json);
                 if (json.message != 'reset') {
                     notifyNow(json.message);
                     fetch('http://www.bytel.tv/notifs/poll.php?message=reset'); // Reset
@@ -54,25 +52,25 @@ var pollServer = function() {
     setTimeout(pollServer, 3000);
 };
 
-setTimeout(pollServer, 5000);
+pollServer();
 
 // --------------------------------------------------------- //
 
 self.addEventListener('install', function(event) {
     console.log('install', event);
-    notifyMe('Worker install');
+    notifyLater('Worker install');
 });
 
 self.addEventListener('activate', function(event) { // can control pages !
     console.log('Activating...', event);
     // event.waitUntil(somethingThatReturnsAPromise().then(function() {}));
-    notifyMe('Worker activate');
+    notifyLater('Worker activate');
 });
 
 self.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en/tutorials/service-worker/introduction/
     console.log('fetch', event.request.url, event);
     
-    // notifyMe('Detect new network request');
+    // notifyLater('Detect new network request');
 
     /*
     console.log('Fetching', event.request.url);
@@ -99,7 +97,7 @@ self.addEventListener('fetch', function(event) { // http://www.html5rocks.com/en
 
 self.onmessage = function(event) {
     console.log('Got message in SW1', event.data);
-    notifyMe('onmessage1 '+event.data);
+    notifyLater('onmessage1 '+event.data);
 
     if (event.source) event.source.postMessage('Woopy from worker!');
     else console.log('No event.source');
@@ -108,7 +106,7 @@ self.onmessage = function(event) {
 
 self.addEventListener('message', function(event) {
     console.log('Got message in SW2', event.data);
-    notifyMe('onmessage2 '+event.data);
+    notifyLater('onmessage2 '+event.data);
 
     if (event.source) event.source.postMessage('Woop!');
     else console.log('No event.source');
@@ -167,4 +165,4 @@ self.onpush = function(event) { // // http://w3c.github.io/push-api/
 
 // --------------------------------------------------------- //
 
-notifyMe('Worker Loaded');
+notifyNow('Worker Loaded');
