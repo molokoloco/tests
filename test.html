@@ -25,7 +25,7 @@
 
     <div id="console">
         <div id="js-log"></div><br />
-        <!--//<button id="swinstall">Install Service Worker</button>//--><button id="swuninstall">Uninstall Service Worker</button>
+        <!--//<button id="swinstall">Install Service Worker</button>//--><button id="swuninstall">Uninstall Service Worker</button> URL to send messages : <a href="http://www.bytel.tv/notifs/poll.php?message=HERE%20THE%20MESSAGE" target="_blank">http://www.bytel.tv/notifs/poll.php?message=HERE%20THE%20MESSAGE</a>
     </div>
   
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -58,8 +58,7 @@
                 .then(function(myWorker) {
                     console.log('myWorker', myWorker);
                     log('Successfully installed ServiceWorker');
-                    window.location.reload(); // to use it now
-
+                    window.location.reload(); // to use it now !
                 }, function(err) {
                     console.log('ServiceWorker registration failed(1): ', err);
                     log('ServiceWorker registration failed: ', err);
@@ -74,16 +73,16 @@
             log('About to try to uninstall a Service Worker');
             console.log('uninstalling Service Worker...');
 
-            if (!navigator.serviceWorkercontroller) return; // .current ?
-
-            navigator.serviceWorker
-                .unregister()
-                .then(function() {
-                    log('Successfully uninstalled ServiceWorker');
-                }, function(err) {
-                    console.log(err);
-                    log('Failed to uninstall: ' + err);
-                });
+            if (navigator.serviceWorkercontroller) {
+                navigator.serviceWorker
+                    .unregister()
+                    .then(function() {
+                        log('Successfully uninstalled ServiceWorker');
+                    }, function(err) {
+                        console.log(err);
+                        log('Failed to uninstall: ' + err);
+                    });
+            }
         };
 
         // ------------------------ Service Worker detect ------------------------ //
@@ -171,6 +170,7 @@
 
         if ('MessageChannel' in window) {
             var messageChannel = new MessageChannel();
+            
             messageChannel.port1.onmessage = function(event) {
                 console.log('messageChannel 1', event.data);
             };
@@ -178,6 +178,7 @@
                 console.log('messageChannel 2', event.data);
             };
             messageChannel.port1.start();
+            
             setTimeout(function() {
                 messageChannel.port1.postMessage('Hello from page !');
             }, 5000);
