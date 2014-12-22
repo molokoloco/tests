@@ -4,6 +4,8 @@ console.log('SW init');
 
 // --------------------------------------------------------- //
 
+if (Notification.permission !== 'granted') Notification.requestPermission();
+
 var notifInt = null,
     count = 0;
 
@@ -22,7 +24,6 @@ var notifyLater = function(mess) {
         console.log('Notification : Please us a modern version of Chrome, Firefox, Opera ...');
         return;
     }
-    if (Notification.permission !== 'granted') Notification.requestPermission();
     if (notifInt) clearInterval(notifInt);
     notifInt = setTimeout(notifyNow, 20 * 1000, mess);
 };
@@ -117,10 +118,10 @@ if (MessageChannel) {
     try {
         var messageChannel = new MessageChannel();
         messageChannel.port1.onmessage = function(event) {
-            console.log('worker messageChannel 1', event.data);
+            console.log('worker messageChannel 1', event);
         };
         messageChannel.port2.onmessage = function(event) {
-            console.log('worker messageChannel 2', event.data);
+            console.log('worker messageChannel 2', event);
         };
         messageChannel.port1.start();
         
@@ -165,4 +166,4 @@ self.onpush = function(event) { // // http://w3c.github.io/push-api/
 
 // --------------------------------------------------------- //
 
-notifyNow('Worker Loaded');
+notifyNow('Worker Loaded...');
